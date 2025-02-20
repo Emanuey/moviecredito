@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoveCrédito - Pagamento via Pix</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    img.logo {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .price {
+      color: green;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #00bcd4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0097a7;
+    }
+
+    .success {
+      background-color: #dff0d8;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    .pix-code {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      word-wrap: break-word;
+      margin: 10px 0;
+    }
+
+    .copy-btn {
+      background-color: #00bcd4;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn:hover {
+      background-color: #0097a7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="logo.png" alt="MoveCrédito" class="logo">
+    <h2>Pagamento via Pix</h2>
+    <p class="price">(Parcela 8) R$ 30,00</p>
+
+    <div id="email-section">
+      <p>Insira o e-mail para receber o código Pix:</p>
+      <input type="email" id="email" placeholder="Seu e-mail">
+      <button onclick="generatePixCode()">Confirmar</button>
+    </div>
+
+    <div id="pix-section" style="display: none;">
+      <div class="success">
+        <p>Falta pouco! Conclua o pagamento de <strong>R$ 30,00</strong> via Pix.</p>
+      </div>
+
+      <p>Código Pix:</p>
+      <div class="pix-code" id="pixCode">00020126580014br.gov.bcb.pix01361b5806c7</div>
+      <button class="copy-btn" onclick="copyPixCode()">Copiar Código</button>
+
+      <p>Ou escaneie o QR Code:</p>
+      <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?data=00020126580014br.gov.bcb.pix01361b5806c7&size=200x200" alt="QR Code Pix">
+
+      <button onclick="confirmPayment()">Confirmar Pagamento</button>
+    </div>
+  </div>
+
+  <script>
+    function generatePixCode() {
+      const email = document.getElementById('email').value;
+
+      if (!email) {
+        alert('Por favor, insira um e-mail válido.');
+        return;
+      }
+
+      document.getElementById('email-section').style.display = 'none';
+      document.getElementById('pix-section').style.display = 'block';
+    }
+
+    function copyPixCode() {
+      const pixCode = document.getElementById('pixCode').innerText;
+      navigator.clipboard.writeText(pixCode).then(() => {
+        alert('Código Pix copiado com sucesso!');
+      }, () => {
+        alert('Falha ao copiar o código Pix.');
+      });
+    }
+
+    function confirmPayment() {
+      const email = document.getElementById('email').value;
+
+      fetch('http://localhost:3000/confirm-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          parcela: 8,
+          email: email
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(error => {
+        console.error('Erro ao confirmar pagamento:', error);
+        alert('Erro ao confirmar pagamento.');
+      });
+    }
+  </script>
+
+</body>
+</html>
